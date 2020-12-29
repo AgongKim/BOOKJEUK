@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+   PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--  oracle null 처리  -->
+   <!-- 클래스에 별명 설정 -->
+   <typeAliases>
+      <typeAlias type="tag.bean.TagDTO" alias="tagDTO"/>
+      <typeAlias type="book.bean.BookDTO" alias="bookDTO"/>
+      <typeAlias type="member.bean.MemberDTO" alias="memberDTO"/>
+      <typeAlias type="member.bean.RecordDTO" alias="recordDTO"/>
+      <typeAlias type="search.bean.SearchDTO" alias="searchDTO"/>
+      <typeAlias type="review.bean.ReviewDTO" alias="reviewDTO"/>
+      <typeAlias type="book.bean.Book_gradeDTO" alias="book_gradeDTO"/>
+      <typeAlias type="member.bean.FavoriteDTO" alias="favoriteDTO"/>
+      <typeAlias type="book.bean.GradeBookMemberDTO" alias="grade_book_memberDTO"/>
+      <typeAlias type="book.bean.BookandGrade" alias="book_and_grade"/>
+   </typeAliases>
+   
+   <!-- sql mapper 설정 -->
+   <mappers>
+      <mapper resource="mybatis/tag_mapping.xml"/>
+      <mapper resource="mybatis/book_mapping.xml"/>
+      <mapper resource="mybatis/member_mapping.xml"/>
+      <mapper resource="mybatis/search_mapping.xml"/>
+      <mapper resource="mybatis/review_mapping.xml"/>
+   </mappers>
+   
+   
+</configuration>

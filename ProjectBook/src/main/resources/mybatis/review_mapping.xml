@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- 매퍼 이름설정해주는것 -->
+<mapper namespace="mybatis.reviewMapper">
+
+	<select id="reviewList" parameterType="java.util.Map" resultType="reviewDTO">
+		<![CDATA[select *from
+					(select rownum rn,tt.* from
+					(select * from view_review where review_id>0 order by review_id desc) tt)
+				where rn>=${startNum} and rn<=${endNum}]]>
+	</select>
+	<select id="reviewId" parameterType="java.util.Map" resultType="reviewDTO">
+		<![CDATA[select *from
+					(select rownum rn,tt.* from
+					(select * from view_review where member_id=#{member_id} order by review_id desc) tt)
+					where rn>=#{startNum} and rn<=#{endNum}]]>
+	</select>
+	<insert id="writeReview" parameterType="java.util.Map">
+			insert into review values(seq_review.nextval,#{member_id},#{review_content},0,#{book_id},sysdate)
+	</insert>
+	
+	<select id="followingReview" parameterType="java.util.Map" resultType="reviewDTO">
+		<![CDATA[
+		select rownum as rn,tt.* from (
+		    (select view_review.*
+		        from view_review 
+		        join member_following on member_following.following = view_review.member_id
+		        where member_following.member_id = #{member_id}
+		        order by review_id desc ) tt)
+		where rownum>=${startNum} and rownum<=${endNum}
+		]]>
+	</select>
+</mapper>

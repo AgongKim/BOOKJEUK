@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- 매퍼 이름설정해주는것 -->
+<mapper namespace="mybatis.memberMapper">
+	<select id="getMember" parameterType="String" resultType="memberDTO">
+		select * from member where member_id = #{member_id}
+	</select>
+	<select id="getMonthData" parameterType="java.util.Map" resultType="recordDTO">
+		 select * from 
+    		(select * from record
+    			where end_time between to_date(${year}${month}01000000,'YYYYMMDDHH24MISS') 
+    			and to_date(${year}${month}${lastDay}235959,'YYYYMMDDHH24MISS') or isreading=1)
+			where member_id=#{member_id}
+	</select>
+	<update id="setGoal" parameterType="java.util.Map">
+		update member 
+		set member_goal = ${goal} 
+		where member_id=#{member_id}
+	</update>
+	
+	<select id="getBookRecord" parameterType="String" resultType="recordDTO">
+		select record.*,view_book.book_img from record inner join view_book
+        	on record.book_name = view_book.book_name
+        where member_id = #{member_id}
+        ORDER BY  record.isreading desc , record.end_time desc
+	</select>
+	
+	<select id="getFavorite" parameterType="String" resultType="member.bean.FavoriteDTO">
+		select view_book.*,favorite.member_id 
+			from view_book inner join favorite
+    		on view_book.book_id=favorite.book_id
+    		where favorite.member_id=#{member_id}
+	</select>
+	<insert id="addMember" parameterType="memberDTO">
+		 insert into member values(#{member_nick},#{member_id},#{member_pw},#{member_genre},#{member_photo},
+		 #{member_phone},#{member_goal}, #{member_email})
+	</insert>
+	<select id="chkLogin" parameterType="java.util.Map" resultType="memberDTO">
+		select * from member where member_id=#{member_id} and member_pw = #{member_pw}
+	</select>
+	<!-- 책읽기 시작 /종료 (지금기준) -->
+	<insert id="startReading" parameterType="java.util.Map">
+		insert into record values(#{book_id},#{member_id},#{book_name},sysdate,null,1)
+	</insert>
+	<update id="endReading" parameterType="java.util.Map">
+		update record set end_time=sysdate, isreading=0 where member_id = #{member_id} and book_id=#{book_id}
+	</update>
+	<select id="isReading" parameterType="java.util.Map" resultType="recordDTO">
+		select * from record where member_id=#{member_id} and book_id=#{book_id}
+	</select>
+	
+	<!-- 책읽기 시작날짜/종료날짜 수정 -->
+	<update id="updateReading" parameterType="java.util.Map">
+		update record set start_time = (to_date(#{start_time},'YYYY-MM-DD')) , end_time= (to_date(#{end_time},'YYYY-MM-DD')) 
+		where book_id=#{book_id} and member_id = #{member_id}
+	</update>
+	<!-- 책 찜하기 / 찜하기 취소 /찜되어있는지 확인 -->
+	<insert id="setFavorite" parameterType="java.util.Map">
+		insert into favorite values(#{book_id},#{member_id})
+	</insert>
+	<delete id="deleteFavorite" parameterType="java.util.Map">
+		delete from favorite where member_id=#{member_id} and book_id=#{book_id}
+	</delete>
+	<select id="isFavorite" parameterType="java.util.Map" resultType="favoriteDTO">
+		select * from favorite where member_id=#{member_id} and book_id=#{book_id}
+	</select>
+	<select id="getBookShelf" parameterType="String" resultType="book_and_grade">
+	select book.*,book_grade.*,record.member_id
+		from book
+		    join book_grade 
+		    on book.book_id = book_grade.book_id
+		    join record
+		    on book.book_id=record.book_id
+		    where member_id = #{member_id}
+	</select>
+	<delete id="deleteMember" parameterType="String">
+		delete member where member_id = #{member_id}
+	</delete>
+	
+		<!-- 아이디 중복검사 -->
+	<select id="chkId" parameterType="String" resultType="String">
+		select member_id from member where member_id = #{member_id}
+	</select>
+	<!-- 아이디 찾기 -->
+	<select id="memberFindId" parameterType="String" resultType="String">
+		select member_id from member where member_email = #{member_email}
+	</select>
+	<!-- 비번찾기 -->
+	<select id="memberFindPw" parameterType="String" resultType="memberDTO">
+		select member_pw, member_email from member where member_id = #{member_id}
+	</select>
+</mapper>

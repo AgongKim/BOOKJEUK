@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- 매퍼 이름설정해주는것 -->
+<mapper namespace="mybatis.bookMapper">
+	<insert id="bookInsert" parameterType="bookDTO">
+		 insert into book values(seq_book.nextval,#{book_name},#{writer},#{publisher},
+		 #{book_summary},#{book_link},#{book_img})
+	</insert>
+	<select id="getLastBookId" resultType="int">
+		select max(book_id) as book_id from book
+	</select>
+	<select id="getBook_img" parameterType="int" resultType="String">
+		 select book_img from book where book_id=#{book_id}
+	</select>
+	<select id="topIndexList" parameterType="java.util.Map" resultType="bookDTO">
+		<![CDATA[select * from
+        			(select rownum rn, tt. *from
+            			(select * from view_book order by grade desc) tt)
+    				where rn>=#{startNum} and rn<=#{endNum}]]>
+	</select>
+	<select id="book_searchlist" resultType="bookDTO" parameterType="String">
+		select * from view_book  where book_name like #{book_name} order by grade desc
+   	</select>
+   
+   	<select id="book_select" resultType="java.util.HashMap" parameterType="int">
+		select * from view_book
+	    where book_id = #{book_id}
+   	</select>
+   	<insert id="book_grade_insert" parameterType="book_gradeDTO">
+   		insert into book_grade values(#{book_id}, #{book_good}, #{book_neut}, #{book_bad})
+	</insert>
+	
+	<select id="book_grade_select" parameterType="int" resultType="book_gradeDTO">
+		select * from book_grade where book_id = #{book_id}
+	</select>
+   	
+   	
+   	<!--회원이 책평가하기 & 책평가 이미 했는지 여부확인용 -->
+   	<insert id="set_grade_book_member1" parameterType="java.util.Map">
+   		insert into member_grade values(#{member_id},#{book_id},#{graded})
+   	</insert>
+   	<update id="set_grade_book_member2" parameterType="java.util.Map">
+   		update book_grade set book_good=book_${graded}+1 where book_id=#{book_id}
+   	</update>
+   	
+   	<!-- 위의 두개는 한쌍 -->
+   	<select id="get_grade_book_member" parameterType="java.util.Map" resultType="grade_book_memberDTO">
+   		select member_grade.member_id,member_grade.graded,book_grade.* from
+    	member_grade join book_grade
+    	on member_grade.book_id = book_grade.book_id
+    	where member_grade.member_id = #{member_id} and member_grade.book_id=#{book_id}
+   	</select>
+   	
+</mapper>

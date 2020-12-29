@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- 매퍼 이름설정해주는것 -->
+<mapper namespace="mybatis.tagMapper">
+   <select id="genreIndexList" parameterType="java.util.Map" resultType="bookDTO">
+		<![CDATA[select * from
+				    (select rownum rn, tt. *from
+				        (select * from 
+				            (select  view_book.*,book_tag.${genre}
+				                from book_tag
+				                    inner join view_book
+				                    on book_tag.book_id = view_book.book_id
+				                    order by view_book.grade desc)
+				                    where ${genre}=1) tt)
+				where rn>=#{startNum} and rn<=#{endNum}]]>		
+   </select>
+   <insert id="bookInsert" parameterType="tag.bean.TagDTO">
+   		insert into book_tag values(
+   		#{book_id}, 
+   		#{book_name}, 
+   		#{genre_poet}, 
+   		#{genre_essay}, 
+   		#{genre_selfDev},
+   		#{genre_history}, 
+   		#{genre_science}, 
+   		#{genre_novel}, 
+   		#{genre_comics}, 
+   		#{genre_art})
+   </insert>
+   <select id="tagSelect" resultType="java.util.HashMap" parameterType="String" >
+	    select view_book.*,
+	    book_tag.genre_art,book_tag.genre_comics,
+	    book_tag.genre_essay,book_tag.genre_history,
+	    book_tag.genre_novel,book_tag.genre_poet,
+	    book_tag.genre_science,book_tag.genre_selfdev
+	    from view_book
+	    inner join book_tag
+	    on view_book.book_id = book_tag.book_id
+	    where book_tag.${tag} = 1
+   </select>
+</mapper>
